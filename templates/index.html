@@ -15,6 +15,10 @@
         <h2>Post Title: {{ info.title }}</h2>
         <p><em>Written by ... {{ info.author }}</em></p>
         <p>Post content: {{ info.content }}</p>
+
+        <form action="/delete/{{ info.id }}" method="POST">
+        <input type="submit" value="Delete">
+        </form>
          
     </div>
     </ul>
