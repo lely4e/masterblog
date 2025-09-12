@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import json
+import os
 
 
 app = Flask(__name__)
@@ -7,9 +8,15 @@ app = Flask(__name__)
 
 def load_data(file_path):
     """ Loads a JSON file """
-    with open(file_path, "r", encoding="utf-8") as handle:
-        return json.load(handle)
+    if not os.path.exists(file_path):
+        return []
     
+    with open(file_path, "r", encoding="utf-8") as handle:
+        try:
+            return json.load(handle)
+        except json.JSONDecodeError:
+            return []
+
 
 def save_data(data, file_path, indent=4):
     """ Saves new post in JSON file """
