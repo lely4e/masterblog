@@ -70,7 +70,47 @@ def delete(post_id):
             save_data(posts, "data/data.json", indent=4)
             # Redirect back to the home page
             return redirect(url_for('index'))
+        
+        
+def fetch_post_by_id(post_id):
+    posts = load_data("data/data.json")
+    for post in posts:
+        if post_id == post["id"]:
+            return post
+    return None
+
+        
+@app.route('/update/<int:post_id>', methods=['GET', 'POST'])
+def update(post_id):
+    # Fetch the blog posts from the JSON file
+    post = fetch_post_by_id(post_id) # {id: 1, .....}
+    if post is None:
+        # Post not found
+        return "Post not found", 404
+    
+    if request.method == 'POST':
+        # Update the post in the JSON file
+        id = request.form.get("id")
+        author = request.form.get("author")
+        title = request.form.get("title")
+        content = request.form.get("content")
+        
+        # Appends new data to Json file
+        posts = load_data("data/data.json")
+       
+        for post in posts:    
+            if post_id == post['id']:
+                post.update({"author": author, "title": title, "content": content})
+                save_data(posts, "data/data.json", indent=4)
+        
+                # Redirect to the home page
+                return redirect(url_for('index'))
+
+    # Else, it's a GET request
+    # So display the update.html page
+    return render_template('update.html', post=post)
 
 
 if __name__ == '__main__':
     app.run(host="127.0.0.1", port=5000, debug=True)
+    

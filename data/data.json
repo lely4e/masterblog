@@ -1,13 +1,13 @@
 [
     {
         "id": 1,
-        "author": "John Doe",
+        "author": "Jane Doe",
         "title": "First Post",
-        "content": "This is my first post."
+        "content": "Today is a great day."
     },
     {
         "id": 2,
-        "author": "Jane Doe",
+        "author": "Joe Doe",
         "title": "Second Post",
         "content": "This is another post."
     }
