@@ -3,12 +3,42 @@
         "id": 1,
         "author": "Jane Doe",
         "title": "First Post",
-        "content": "Today is a great day."
+        "content": "Today is a great day.",
+        "like": 1
     },
     {
         "id": 2,
         "author": "Joe Doe",
         "title": "Second Post",
-        "content": "This is another post."
+        "content": "This is another post.",
+        "like": 0
+    },
+    {
+        "id": 3,
+        "author": "Virginia Woolf",
+        "title": "Third Post",
+        "content": "No need to hurry. No need to sparkle. No need to be anybody but oneself.",
+        "like": 0
+    },
+    {
+        "id": 4,
+        "author": "Albert Camus",
+        "title": "Fourth Post",
+        "content": "In the depth of winter, I finally learned that within me there lay an invincible summer.",
+        "like": 0
+    },
+    {
+        "id": 5,
+        "author": "Franz Kafka",
+        "title": "Fifth Post",
+        "content": "Franz Kafka",
+        "like": 0
+    },
+    {
+        "id": 6,
+        "author": "Oscar Wilde",
+        "title": "Sixth Post",
+        "content": "Be yourself; everyone else is already taken.",
+        "like": 1
     }
 ]

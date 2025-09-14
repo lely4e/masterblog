@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #F5F5F5;
+    background-color: #fffeee;
     padding: 20px;
     color: #333;
 }
@@ -24,4 +24,13 @@ h1 {
 
 .post p {
     margin: 10px 0;
+}
+
+.delete-update-like {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 20px;
+  margin-top: 0px;
+  padding-top: 10px;
 }

@@ -33,14 +33,30 @@ def get_id():
     return max(ids) + 1
 
 
+def fetch_post_by_id(post_id):
+    """ Fetches a post from the database """
+    posts = load_data("data/data.json")
+    for post in posts:
+        if post['id'] == post_id:
+            return post
+    return None
+
+
 @app.route('/')
 def index():
+    """ Loads JSON data and renders template """
     blog_posts = load_data("data/data.json")
     return render_template('index.html', posts=blog_posts)
 
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
+    """ 
+    Adds new post. 
+    
+    GET: Renders the add form.
+    POST: Processes the form submission and adds it to the database.
+    """
     if request.method == 'POST':
         # Gets all data
         id = get_id()
@@ -50,7 +66,7 @@ def add():
         
         # Appends new data to Json file
         posts = load_data("data/data.json")
-        posts.append({"id": id, "author": author, "title": title, "content": content})
+        posts.append({"id": id, "author": author, "title": title, "content": content, "like": 0})
         save_data(posts, "data/data.json", indent=4)
         
         # Redirect to the home page
@@ -61,29 +77,28 @@ def add():
 
 @app.route('/delete/<int:post_id>', methods=['POST'])
 def delete(post_id):
+    """ Deletes a post from the database """
     # Find the blog post with the given id and remove it from the list
     posts = load_data("data/data.json")
     for post in posts:
-        if post_id == post["id"]:
+        if post['id'] == post_id:
             posts.remove(post)
             
             save_data(posts, "data/data.json", indent=4)
             # Redirect back to the home page
             return redirect(url_for('index'))
-        
-        
-def fetch_post_by_id(post_id):
-    posts = load_data("data/data.json")
-    for post in posts:
-        if post_id == post["id"]:
-            return post
-    return None
 
         
 @app.route('/update/<int:post_id>', methods=['GET', 'POST'])
 def update(post_id):
+    """ 
+    Handle updating a post with the given post_id.
+    
+    GET: Render the update form for specified post.
+    POST: Process the form submission and update the post in the database.
+    """
     # Fetch the blog posts from the JSON file
-    post = fetch_post_by_id(post_id) # {id: 1, .....}
+    post = fetch_post_by_id(post_id) 
     if post is None:
         # Post not found
         return "Post not found", 404
@@ -99,7 +114,7 @@ def update(post_id):
         posts = load_data("data/data.json")
        
         for post in posts:    
-            if post_id == post['id']:
+            if post['id'] == post_id:
                 post.update({"author": author, "title": title, "content": content})
                 save_data(posts, "data/data.json", indent=4)
         
@@ -109,6 +124,20 @@ def update(post_id):
     # Else, it's a GET request
     # So display the update.html page
     return render_template('update.html', post=post)
+
+
+@app.route('/like/<int:id>', methods=['POST'])
+def likes(id):
+    """ Increments like count by 1 """
+    posts = load_data("data/data.json")
+    for post in posts:    
+        if post['id'] == id:
+            post['like'] = post.get('like', 0) + 1
+            
+    save_data(posts, "data/data.json", indent=4)
+
+    # Redirect to the home page
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
