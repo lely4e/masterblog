@@ -3,7 +3,7 @@
         "id": 1,
         "author": "Jane Doe",
         "title": "First Post",
-        "content": "Today is a great day.",
+        "content": "Today is a great day to have a great day.",
         "like": 1
     },
     {
@@ -11,14 +11,14 @@
         "author": "Joe Doe",
         "title": "Second Post",
         "content": "This is another post.",
-        "like": 0
+        "like": 2
     },
     {
         "id": 3,
         "author": "Virginia Woolf",
         "title": "Third Post",
         "content": "No need to hurry. No need to sparkle. No need to be anybody but oneself.",
-        "like": 0
+        "like": 1
     },
     {
         "id": 4,

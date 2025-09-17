@@ -1,42 +1,30 @@
 from flask import Flask, render_template, request, redirect, url_for
-import json
-import os
+from storage import data_storage #, POSTS, save_data
 
 
 app = Flask(__name__)
 
 
-def load_data(file_path):
-    """ Loads a JSON file """
-    if not os.path.exists(file_path):
-        return []
-    
-    with open(file_path, "r", encoding="utf-8") as handle:
-        try:
-            return json.load(handle)
-        except json.JSONDecodeError:
-            return []
+def check_data(posts, error_message):
+    """ 
+    Check if the data is valid, saves it to the database
+    and redirect to the index page. Returns an error if saving fails 
+    """
+    try:
+        data_storage.save_data(posts, "data/data.json", indent=4)
+    except Exception as e:
+        return f"{error_message}: {e}", 500
+    return redirect(url_for('index'))
 
 
-def save_data(data, file_path, indent=4):
-    """ Saves new post in JSON file """
-    with open(file_path, "w", encoding="utf-8") as handle:
-        return json.dump(data, handle, indent=indent)
-    
-    
 def get_id():
     """ Gets the maximum id in posts and generate a new one by adding 1 """
-    posts = load_data("data/data.json")
-    if not posts:
-        return 1
-    ids = [id["id"] for id in posts]
-    return max(ids) + 1
+    return max((post["id"] for post in data_storage.POSTS), default=0) +1
 
 
 def fetch_post_by_id(post_id):
     """ Fetches a post from the database """
-    posts = load_data("data/data.json")
-    for post in posts:
+    for post in data_storage.POSTS:
         if post['id'] == post_id:
             return post
     return None
@@ -45,8 +33,7 @@ def fetch_post_by_id(post_id):
 @app.route('/')
 def index():
     """ Loads JSON data and renders template """
-    blog_posts = load_data("data/data.json")
-    return render_template('index.html', posts=blog_posts)
+    return render_template('index.html', posts=data_storage.POSTS)
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -59,19 +46,21 @@ def add():
     """
     if request.method == 'POST':
         # Gets all data
-        id = get_id()
-        author = request.form.get("author")
-        title = request.form.get("title")
-        content = request.form.get("content")
+        post_id = get_id()
+        author = request.form.get("author", "").strip()
+        title = request.form.get("title", "").strip()
+        content = request.form.get("content", "").strip()
+        
+        # Input 
+        if not author or not title or not content:
+            return render_template("add.html", error="Empty fields")
         
         # Appends new data to Json file
-        posts = load_data("data/data.json")
-        posts.append({"id": id, "author": author, "title": title, "content": content, "like": 0})
-        save_data(posts, "data/data.json", indent=4)
+        data_storage.POSTS.append({"id": post_id, "author": author, "title": title, "content": content, "like": 0})
         
-        # Redirect to the home page
-        return redirect(url_for('index'))
-    
+        # Check data
+        return check_data(data_storage.POSTS, "Can't save post")
+        
     return render_template('add.html')
 
 
@@ -79,16 +68,16 @@ def add():
 def delete(post_id):
     """ Deletes a post from the database """
     # Find the blog post with the given id and remove it from the list
-    posts = load_data("data/data.json")
-    for post in posts:
+    for post in data_storage.POSTS:
         if post['id'] == post_id:
-            posts.remove(post)
+            data_storage.POSTS.remove(post)
             
-            save_data(posts, "data/data.json", indent=4)
-            # Redirect back to the home page
-            return redirect(url_for('index'))
-
+            # Check data
+            return check_data(data_storage.POSTS, "Can't delete post")
         
+    return "Post not found", 404
+
+
 @app.route('/update/<int:post_id>', methods=['GET', 'POST'])
 def update(post_id):
     """ 
@@ -106,40 +95,39 @@ def update(post_id):
     if request.method == 'POST':
         # Update the post in the JSON file
         id = request.form.get("id")
-        author = request.form.get("author")
-        title = request.form.get("title")
-        content = request.form.get("content")
+        author = request.form.get("author", "").strip()
+        title = request.form.get("title", "").strip()
+        content = request.form.get("content", "").strip()
         
-        # Appends new data to Json file
-        posts = load_data("data/data.json")
-       
-        for post in posts:    
+        # Input Validation
+        if not author or not title or not content:
+            return render_template("update.html", post=post, error="Empty fields")
+        
+        # Appends new data to Json file  
+        for post in data_storage.POSTS:    
             if post['id'] == post_id:
                 post.update({"author": author, "title": title, "content": content})
-                save_data(posts, "data/data.json", indent=4)
-        
-                # Redirect to the home page
-                return redirect(url_for('index'))
+                
+                # Check data
+                return check_data(data_storage.POSTS, "Can't update post")
 
-    # Else, it's a GET request
-    # So display the update.html page
+    # GET request
     return render_template('update.html', post=post)
 
 
 @app.route('/like/<int:id>', methods=['POST'])
 def likes(id):
     """ Increments like count by 1 """
-    posts = load_data("data/data.json")
-    for post in posts:    
+    for post in data_storage.POSTS:    
         if post['id'] == id:
             post['like'] = post.get('like', 0) + 1
             
-    save_data(posts, "data/data.json", indent=4)
+            # Check data
+            return check_data(data_storage.POSTS, "Can't update likes")
 
-    # Redirect to the home page
-    return redirect(url_for('index'))
+    return "Post not found", 404
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)
     
