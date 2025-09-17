@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from storage import data_storage #, POSTS, save_data
+from storage import data_storage 
 
 
 app = Flask(__name__)
